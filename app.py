@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from models import db, User, Card, Collection
-import json
+import json, os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tcg.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "instance", "tcg.db")
 db.init_app(app)
 
 
@@ -57,6 +59,8 @@ def get_cards():
             "toughness": card.toughness
         })
     return jsonify(cards_list)
+
+
 @app.route("/view_cards")
 def view_cards():
     cards = Card.query.all()
