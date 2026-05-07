@@ -1,19 +1,69 @@
 from flask import Flask, jsonify, render_template, request
+from flask_sqlalchemy import SQLAlchemy
+from models import db, User, Card, Collection
 import json
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tcg.db"
+db.init_app(app)
 
-card_data = {}
-with open("static/card_data.json", "r") as f:
-    card_data = json.load(f)
+
+# def seed_database():
+#     """Import card data from JSON into the SQL database."""
+#     try:
+#         with open("card_data.json", "r") as f:
+#             cards_data = json.load(f)
+
+#         for key, data in cards_data.items():
+#             # Check if card already exists to avoid duplicates
+#             exists = Card.query.filter_by(name=data["name"]).first()
+#             if not exists:
+#                 new_card = Card(
+#                     name=data.get("name"),
+#                     mana_cost=data.get("mana_cost"),
+#                     cmc=data.get("cmc"),
+#                     type_line=data.get("type_line"),
+#                     oracle_text=data.get("oracle_text"),
+#                     # .get() handles missing power/toughness for Lands/Artifacts
+#                     power=data.get("power"),
+#                     toughness=data.get("toughness"),
+#                 )
+#                 db.session.add(new_card)
+
+#         db.session.commit()
+#         print("Database seeded successfully!")
+#     except Exception as e:
+#         print(f"Error seeding database: {e}")
+#         db.session.rollback()
+
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/cards")
+@app.route("/api/cards")
 def get_cards():
-    return jsonify(card_data)
+    cards = Card.query.all()
+    cards_list = []
+    for card in cards:
+        cards_list.append({
+            "id": card.id,
+            "name": card.name,
+            "mana_cost": card.mana_cost,
+            "cmc": card.cmc,
+            "type_line": card.type_line,
+            "oracle_text": card.oracle_text,
+            "power": card.power,
+            "toughness": card.toughness
+        })
+    return jsonify(cards_list)
+@app.route("/view_cards")
+def view_cards():
+    cards = Card.query.all()
+    return render_template("view_cards.html", cards=cards)
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+        # seed_database()
     app.run(debug=True, host="0.0.0.0")
