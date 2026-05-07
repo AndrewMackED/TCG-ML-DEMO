@@ -3,23 +3,32 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+<div class="container">
     <h1>View Cards</h1>
-    <ul>
         {% for card in cards %}
-            <li>
-                <h3>{{ card.name }}</h3>
-                {% if card.mana_cost%}
-                <p>Mana Cost: {{ card.mana_cost }}</p>
-                <p>CMC: {{ card.cmc }}</p>
-                {% endif %}
+        <div class="card mb-3">
+            <div class="row no-gutters">
+                <div class="col-md-3 px-auto d-flex align-items-center justify-content-center">
+                    <img src="{{ url_for('static', filename='card_images/' + card.class_id + '.png') }}" class="card-img" alt="{{ card.name }}" style="max-width: 100%; height: auto;">
+                </div>
+                <div class="col-md-9">
+                    <div class="card-body">
+                        <h3>{{ card.name }}</h3>
+                        {% if card.mana_cost%}
+                        <p>Mana Cost: {{ card.mana_cost }}</p>
+                        <p>CMC: {{ card.cmc }}</p>
+                        {% endif %}
 
-                <p>Type: {{ card.type_line }}</p>
-                <p>Oracle Text: {{ card.oracle_text }}</p>
-                {% if card.power and card.toughness %}
-                <p>Power: {{ card.power }}</p>
-                <p>Toughness: {{ card.toughness }}</p>
-                {% endif %}
-            </li>
+                        <p>Type: {{ card.type_line }}</p>
+                        <p>Oracle Text: {{ card.oracle_text }}</p>
+                        {% if card.power and card.toughness %}
+                        <p>Power: {{ card.power }}</p>
+                        <p>Toughness: {{ card.toughness }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+</div>
 {% endblock %}

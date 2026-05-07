@@ -19,6 +19,7 @@ class Card(db.Model):
     oracle_text = db.Column(db.Text)
     power = db.Column(db.String(10))
     toughness = db.Column(db.String(10))
+    class_id = db.Column(db.String(50), unique=True)
 
     in_collections = db.relationship("Collection", backref="card_data", lazy=True)
 

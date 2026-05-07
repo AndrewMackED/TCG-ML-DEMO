@@ -17,7 +17,7 @@
         "power": "4",
         "toughness": "4"
     },
-    "Devilish Valet": {
+    "Devilish_Valet": {
         "name": "Devilish Valet",
         "mana_cost": "{2}{R}",
         "cmc": 3.0,
