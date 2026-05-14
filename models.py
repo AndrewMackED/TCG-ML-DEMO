@@ -23,6 +23,19 @@ class Card(db.Model):
 
     in_collections = db.relationship("Collection", backref="card_data", lazy=True)
 
+    def make_json(self):
+        data = {
+                "name" : self.name,
+                "mana_cost" : self.mana_cost,
+                "cmc" : self.cmc,
+                "type_line" : self.type_line,
+                "oracle_text" : self.oracle_text,
+                "power" : self.power,
+                "toughness" : self.toughness
+        }
+        return data
+
+
 
 class Collection(db.Model):
     id = db.Column(db.Integer, primary_key=True)

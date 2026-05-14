@@ -9,36 +9,6 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "instance", "tcg.db")
 db.init_app(app)
 
-
-# def seed_database():
-#     """Import card data from JSON into the SQL database."""
-#     try:
-#         with open("card_data.json", "r") as f:
-#             cards_data = json.load(f)
-
-#         for key, data in cards_data.items():
-#             # Check if card already exists to avoid duplicates
-#             exists = Card.query.filter_by(name=data["name"]).first()
-#             if not exists:
-#                 new_card = Card(
-#                     name=data.get("name"),
-#                     mana_cost=data.get("mana_cost"),
-#                     cmc=data.get("cmc"),
-#                     type_line=data.get("type_line"),
-#                     oracle_text=data.get("oracle_text"),
-#                     # .get() handles missing power/toughness for Lands/Artifacts
-#                     power=data.get("power"),
-#                     toughness=data.get("toughness"),
-#                 )
-#                 db.session.add(new_card)
-
-#         db.session.commit()
-#         print("Database seeded successfully!")
-#     except Exception as e:
-#         print(f"Error seeding database: {e}")
-#         db.session.rollback()
-
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -66,8 +36,26 @@ def view_cards():
     cards = Card.query.all()
     return render_template("view_cards.html", cards=cards)
 
+@app.route("/card/<int:card_id>")
+def view_card(card_id):
+    card = Card.query.get_or_404(card_id)
+    return jsonify(card)
+
+
+@app.route("/get_card_details", methods=["POST"])
+def get_card_details():
+    data = request.json
+    card_class = data.get("className")
+
+    card = Card.query.filter_by(class_id=card_class).first()
+    card_info = card.make_json() if card else None
+
+    if card_info:
+        return jsonify({"success": True, "card": card_info})
+    return jsonify({"success": False, "error": "Card not found"}), 404
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        # seed_database()
     app.run(debug=True, host="0.0.0.0")

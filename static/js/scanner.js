@@ -46,6 +46,8 @@
 
     // run the webcam image through the image model
     async function predict() {
+        let best_match = "";
+
         // predict can take in an image, video or canvas html element
         const prediction = await model.predict(webcam.canvas);
         for (let i = 0; i < maxPredictions; i++) {
@@ -53,7 +55,39 @@
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
             labelContainer.childNodes[i].innerHTML = classPrediction;
             if (prediction[i].probability.toFixed(2) > 0.95) {
-                className.innerHTML = prediction[i].className;
+                best_match = prediction[i].className;
             }
         }
+        className.innerHTML = best_match;
+        if (best_match != "None") {
+            fetchCardDetails(best_match)
+        }
     }
+
+async function fetchCardDetails(detectedName) {
+    try {
+        const response = await fetch('/get_card_details', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ className: detectedName })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            displayCard(result.card);
+        }
+    } catch (error) {
+        console.error("Error fetching card details:", error);
+    }
+}
+
+function displayCard(card){
+    document.getElementById("card-name").innerText = card.name;
+    document.getElementById("card-type").innerText = card.type_line;
+    document.getElementById("card-mana-cost").innerText = card.mana_cost;
+    document.getElementById("card-cmc").innerText = card.cmc;
+    document.getElementById("card-oracle-text").innerText = card.oracle_text;
+    document.getElementById("card-power").innerText = card.power;
+    document.getElementById("card-toughness").innerText = card.toughness;
+}
